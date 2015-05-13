@@ -117,18 +117,4 @@ class IrcBotFactory(protocol.ClientFactory):
 if __name__ == '__main__':
     # initialize logging
     log.startLogging(sys.stdout)
-    
-    settings = {}
-    settings['channel'] = "#asiagodtonegg3be0"
-    settings['nickname'] = "Jkmbot"
-    settings['password'] = 'oauth:apdezk9tgl4rmtqov4gcs9rr8mpg0q'
-    settings['logfilename'] = settings['channel'] + str(time.time()) + '.log'
-    
-    # create factory protocol and application
-    f = IrcBotFactory(settings)
 
-    # connect factory to this host and port
-    reactor.connectTCP('irc.twitch.tv', 6667, f)
-
-    # run bot
-    reactor.run()

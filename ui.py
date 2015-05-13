@@ -29,8 +29,6 @@ class TtvChatAppUI(tk.Tk):
         tk.Tk.__init__(self, parent)
         
         #fixed variables
-        # temp url for image
-        # url='http://jkm.twbbs.org/futaba/src/1431003997516.jpg'
         
         # this is the maximum number of saved image reference to stop GC collect it
         # if any image is dereference, the image would be blank
@@ -82,7 +80,7 @@ class TtvChatAppUI(tk.Tk):
             self.appendImage(inputMsg)
         else:
             self.chatMsg.insert(tk.END, inputMsg)
-        self.chatMsg.insert(tk.END, ' \n')
+        self.chatMsg.insert(tk.END, '\n \n')
         self.chatMsg.see(tk.END)
 
     def appendImage(self, url):
