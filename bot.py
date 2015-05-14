@@ -95,9 +95,9 @@ class IrcBotFactory(protocol.ClientFactory):
         #some init setting
         self.channel = settings['channel']
         self.nickname = settings['nickname']
-        self.logfilename = './log/' \ 
+        self.logfilename = './log/' \
                            + settings['channel'] \
-                           + time.strftime("%Y%m%d_%H_%M_%S", time.localtime()) \ 
+                           + time.strftime("%Y%m%d_%H_%M_%S", time.localtime()) \
                            + '.log'
         self.password = settings['password']
         #self.quotes = settings.quotes
