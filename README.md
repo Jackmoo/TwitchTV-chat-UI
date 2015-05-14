@@ -2,9 +2,9 @@
 I. Description
 ----------------
 This is a Python based Twitch TV chat program, focusing on:
-	- display hyperlinked images in chat
-	- (TODO)other bot-liked reaction (auto-ban, auto-kick, ...)
-	- log all chat msg
+* display hyperlinked images in chat
+* (TODO)other bot-liked reaction (auto-ban, auto-kick, ...)
+* log all chat msg
 
 
 ----------------
