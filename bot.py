@@ -34,7 +34,7 @@ class MessageLogger:
         self.file = file
     
     def log(self, message):
-        timestamp = time.strftime("[%H:%M:%S]", time.localtime(time.time()))
+        timestamp = time.strftime("[%H:%M:%S]", time.localtime())
         self.file.write('%s %s\n' % (timestamp, message))
         self.file.flush()
     
@@ -51,7 +51,7 @@ class IrcBot(irc.IRCClient):
         irc.IRCClient.connectionMade(self)
         self.logger = MessageLogger(open(self.factory.logfilename, 'a'))
         self.logger.log("[connected at %s" %
-                        time.asctime(time.localtime(time.time())))
+                        time.asctime(time.localtime()))
 
     def connectionLost(self, reason):
         """Called when a connection is lost."""
@@ -59,7 +59,7 @@ class IrcBot(irc.IRCClient):
         log.msg("connection lost {!r}".format(reason))
         self.logger = MessageLogger(open(self.factory.logfilename, 'a'))
         self.logger.log("[disconnected at %s, since %s" %
-                        ( time.asctime(time.localtime(time.time())) , reason )
+                        ( time.asctime(time.localtime()) , reason )
                        )
         
     # callbacks for events
@@ -95,7 +95,10 @@ class IrcBotFactory(protocol.ClientFactory):
         #some init setting
         self.channel = settings['channel']
         self.nickname = settings['nickname']
-        self.logfilename = './log/' + settings['channel'] + str(time.time()) + '.log'
+        self.logfilename = './log/' \ 
+                           + settings['channel'] \
+                           + time.strftime("%Y%m%d_%H_%M_%S", time.localtime()) \ 
+                           + '.log'
         self.password = settings['password']
         #self.quotes = settings.quotes
         #self.triggers = settings.triggers
