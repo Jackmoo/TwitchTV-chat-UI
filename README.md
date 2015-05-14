@@ -40,7 +40,7 @@ III. How to start
 
 
 -----------------------
-IV. File description / Program structure
+IV. File description
 -----------------------
 
 * ttvChat.py
@@ -57,10 +57,11 @@ IV. File description / Program structure
 	- py2exe build script
 * py2exe.bat (OPTIONAL)
 	- windowns bat, calling p2exeSetup.py to build
+	
 
-
-
-
+-----------------------
+V. Program structure
+-----------------------
 
      
                                                              +----------------+        +-------------+
@@ -90,7 +91,7 @@ IV. File description / Program structure
 drew by asciiflow.com (AWESOME!)
 
 -----------------------
-V. TODO
+VI. TODO
 -----------------------
  
 * sending msg function
