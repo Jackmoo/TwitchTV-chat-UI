@@ -20,10 +20,9 @@ Required following external Python Modules:
 * PIL
 	- image ( .jpg, .png, ...etc) cability 
 	- image processing (resizing)
-
 *py2exe (OPTIONAL, ONLY FOR WINDOWS)
 	- build stand alone .exe file (remember to check if you are authorized to distribute the related libraries).
-	
+
 Built in modules:
 * Tkinter
 	- all UI
