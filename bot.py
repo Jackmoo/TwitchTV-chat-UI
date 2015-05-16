@@ -48,6 +48,8 @@ class IrcBot(irc.IRCClient):
         """Called when a connection is made."""
         self.nickname = self.factory.nickname
         self.password = self.factory.password
+        self.msgUserName = None
+        self.msgUserColor = 'black'
         irc.IRCClient.connectionMade(self)
         self.logger = MessageLogger(open(self.factory.logfilename, 'a'))
         self.logger.log("[connected at %s" %
@@ -68,18 +70,36 @@ class IrcBot(irc.IRCClient):
         """Called when bot has successfully signed on to server."""
         self.logger.log("signed on")
         self.join(self.factory.channel)
+        # when joined channel, sent 'TWITCHCLIENT 2' + '\r\n' to get detail user data
+        self.sendLine('TWITCHCLIENT 2')
+        self.logger.log('send ttvclient 2')
 
     def joined(self, channel):
         """Called when the bot joins the channel."""
+        # LOOKS LIKE THIS IS NEVER CALLED
         self.logger.log("[{nick} has joined {channel}]"
                         .format(nick=self.nickname, channel=self.factory.channel))
+        
 
     def privmsg(self, user, channel, msg):
         """Called when the bot receives a message."""
         user = user.split('!', 1)[0]
         self.logger.log("<%s> %s" % (user, msg))
         print("<%s> %s" % (user, msg))
-        self.factory.msgQueue.put({'user': user, 'channel': channel, 'msg': msg})
+        
+        # handle jtv sent msg (USERCOLOR, EMOTESET)
+        # example
+        # USERCOLOR boy20330 #FF0000
+        # EMOTESET boy20330 [0,3568]
+        if user == 'jtv':
+            (msgConfig, user, config) = msg.split(' ',2)
+            if msgConfig == 'USERCOLOR':
+                self.msgUserName = user
+                self.msgUserColor = config
+            #elif msgConfig == 'EMOTESET':
+                #TODO
+        else:
+            self.factory.botRecvMsgQueue.put({'user': user, 'channel': channel, 'msg': msg, 'color': self.msgUserColor})
 
     def action(self, user, channel, msg):
         """This will get called when the bot sees someone do an action."""
@@ -87,6 +107,12 @@ class IrcBot(irc.IRCClient):
         self.logger.log("**ACTION** %s %s" % (user, msg))
         print("**ACTION** %s %s" % (user, msg))
         
+    # server->client messages
+    def irc_PING(self, prefix, params):
+        self.logger.log("PING ACCEPT %s %s" % (prefix, params))
+        self.sendLine("PONG %s" % params[-1])
+        self.logger.log("PING RESPONSE: PONG %s" % params[-1])
+      
 class IrcBotFactory(protocol.ClientFactory):
     # instantiate the TalkBackBot IRC protocol
     # protocol = ircBot
@@ -102,10 +128,11 @@ class IrcBotFactory(protocol.ClientFactory):
         self.password = settings['password']
         #self.quotes = settings.quotes
         #self.triggers = settings.triggers
-        self.msgQueue = Queue()
+        self.botRecvMsgQueue = Queue()
         
     def buildProtocol(self, addr):
-        p = IrcBot()
+        self.protocol = IrcBot()
+        p = self.protocol
         p.factory = self
         return p
         

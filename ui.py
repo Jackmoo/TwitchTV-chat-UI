@@ -3,9 +3,16 @@
 # python module
 import io, re
 from collections import deque
+try:
+    #python2
+    from Queue import Queue
+except ImportError:
+    #py3
+    from queue import Queue
 
 # ext module (for image display, resizing)
 from PIL import Image, ImageTk
+import tkFont
 
 # modules that aren't the same name between py2 and py3
 try:
@@ -30,6 +37,17 @@ class TtvChatAppUI(tk.Tk):
         
         #fixed variables
         
+        #define font
+        self.msgFont = tkFont.Font(family="Helvetica")
+        self.usernameFont = tkFont.Font(family="Helvetica", size="10")
+        # font format params (by sequence):
+        # family ex."Helvetica"
+        # size ex."10"
+        # weight "bold" or "normal"
+        # slant "italic" or "roman"
+        # underline "1" or "0"
+        # overstrike "1" or "0"
+        
         # this is the maximum number of saved image reference to stop GC collect it
         # if any image is dereference, the image would be blank
         # however, too large number may consume lots of memory
@@ -39,10 +57,13 @@ class TtvChatAppUI(tk.Tk):
         self.IMAGE_MAX_HEIGHT = 300
         self.IMAGE_MAX_WIDTH = 300
         
-        self.parent = parent
+        # queue of msg from UI -> ircBot
+        self.uiSentMsgQueue = Queue()
 
         # init function of creating UI cpmponent
         self.initUI()
+        
+        
         
     #===================================
     # Method 
@@ -66,20 +87,27 @@ class TtvChatAppUI(tk.Tk):
 
     def btnSendMsg(self):
         inputMsg = self.typeMsg.get('0.0', tk.END)
+        inputMsg = inputMsg.encode('utf-8')
         self.handleMsg('theSendBtn', inputMsg)
+        self.uiSentMsgQueue.put({'msg': inputMsg })
         self.typeMsg.delete('0.0', tk.END)
         
     def clearChatMsg(self):
         self.chatMsg.delete('0.0', tk.END)
         
-    def handleMsg(self, username, inputMsg):
-        msgHeader = username + ':\n'
-        self.chatMsg.insert(tk.END, msgHeader)
-        isImageUrl = re.match('^https?://(?:[a-z\-]+\.)+[a-z]{2,6}(?:/[^/#?]+)+\.(?:jpg|gif|png)$', inputMsg)
+    def handleMsg(self, recvMsg):
+        msgHeader = recvMsg['user'] + ':\n'
+        # chatMsg tags
+        self.chatMsg.tag_config('username', 
+                                 font=("Helvetica", "12", "bold"), 
+                                 foreground=recvMsg['color']
+                               )
+        self.chatMsg.insert(tk.END, msgHeader, ('username'))
+        isImageUrl = re.match('^https?://(?:[a-z\-]+\.)+[a-z]{2,6}(?:/[^/#?]+)+\.(?:jpg|gif|png)$', recvMsg['msg'])
         if isImageUrl:
-            self.appendImage(inputMsg)
+            self.appendImage(recvMsg['msg'])
         else:
-            self.chatMsg.insert(tk.END, inputMsg)
+            self.chatMsg.insert(tk.END, recvMsg['msg'])
         self.chatMsg.insert(tk.END, '\n \n')
         self.chatMsg.see(tk.END)
 
@@ -109,7 +137,7 @@ class TtvChatAppUI(tk.Tk):
         
         # 2nd layer layout
         # chatMsg Text
-        self.chatMsg = tk.Text(self.chatFrame)
+        self.chatMsg = tk.Text(self.chatFrame, font=self.msgFont)
         
         # scrollbar of chatMsg
         self.chatScrollbar = tk.Scrollbar(self.chatFrame)
