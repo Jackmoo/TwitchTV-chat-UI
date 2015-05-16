@@ -70,9 +70,9 @@ class sendMsgThread(threading.Thread):
                 # pass ui sent msg to bot
                 uiSentMsg = uiThread.appUI.uiSentMsgQueue.get()
                 if uiSentMsg:
-                    #f.protocol.say(settings['channel'] , uiSentMsg['msg'])
+                    f.protocol.say(settings['channel'] , uiSentMsg['msg'])
                     #send pure msg to IRC server
-                    f.protocol.sendLine(uiSentMsg['msg'])
+                    #f.protocol.sendLine(uiSentMsg['msg'])
                 
 sendMsgThread = sendMsgThread()
 

@@ -87,8 +87,11 @@ class TtvChatAppUI(tk.Tk):
 
     def btnSendMsg(self):
         inputMsg = self.typeMsg.get('0.0', tk.END)
+        while inputMsg[-1] == '\n' or inputMsg[-1] == '\r':
+            inputMsg = inputMsg[:-1]
         inputMsg = inputMsg.encode('utf-8')
-        self.handleMsg('theSendBtn', inputMsg)
+        sendMsg = {'user':'me', 'msg':inputMsg, 'color':'black'}
+        self.handleMsg(sendMsg)
         self.uiSentMsgQueue.put({'msg': inputMsg })
         self.typeMsg.delete('0.0', tk.END)
         
@@ -96,6 +99,7 @@ class TtvChatAppUI(tk.Tk):
         self.chatMsg.delete('0.0', tk.END)
         
     def handleMsg(self, recvMsg):
+        # recvMsg = {'user': user, 'channel': channel, 'msg': msg, 'color': color}
         msgHeader = recvMsg['user'] + ':\n'
         # chatMsg tags
         self.chatMsg.tag_config(recvMsg['user'], 
@@ -120,10 +124,10 @@ class TtvChatAppUI(tk.Tk):
         #====================================
         # UI
         # basic layout
-        self.chatFrame = tk.Frame(self, width=380, height=600, bg='white')
-        self.typeFrame = tk.Frame(self, width=380, height=100, bg='white')
-        self.btnFrame = tk.Frame(self, width=380, height=30)
-        self.btnFrame2 = tk.Frame(self, width=380, height=30)
+        self.chatFrame = tk.Frame(self, width=400, height=600, bg='white')
+        self.typeFrame = tk.Frame(self, width=400, height=100, bg='white')
+        self.btnFrame = tk.Frame(self, width=400, height=30)
+        self.btnFrame2 = tk.Frame(self, width=400, height=30)
         #fix basic frames size
         self.chatFrame.pack_propagate(0)
         self.typeFrame.pack_propagate(0)
