@@ -48,8 +48,7 @@ class IrcBot(irc.IRCClient):
         """Called when a connection is made."""
         self.nickname = self.factory.nickname
         self.password = self.factory.password
-        self.msgUserName = None
-        self.msgUserColor = 'black'
+        self.msgUserColor = {}
         irc.IRCClient.connectionMade(self)
         self.logger = MessageLogger(open(self.factory.logfilename, 'a'))
         self.logger.log("[connected at %s" %
@@ -94,12 +93,15 @@ class IrcBot(irc.IRCClient):
         if user == 'jtv':
             (msgConfig, user, config) = msg.split(' ',2)
             if msgConfig == 'USERCOLOR':
-                self.msgUserName = user
-                self.msgUserColor = config
+                self.msgUserColor[user] = config
             #elif msgConfig == 'EMOTESET':
                 #TODO
         else:
-            self.factory.botRecvMsgQueue.put({'user': user, 'channel': channel, 'msg': msg, 'color': self.msgUserColor})
+            color = 'black'
+            if user in self.msgUserColor:
+                color = self.msgUserColor[user]
+                del self.msgUserColor[user]
+            self.factory.botRecvMsgQueue.put({'user': user, 'channel': channel, 'msg': msg, 'color': color})
 
     def action(self, user, channel, msg):
         """This will get called when the bot sees someone do an action."""

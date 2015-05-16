@@ -98,11 +98,11 @@ class TtvChatAppUI(tk.Tk):
     def handleMsg(self, recvMsg):
         msgHeader = recvMsg['user'] + ':\n'
         # chatMsg tags
-        self.chatMsg.tag_config('username', 
+        self.chatMsg.tag_config(recvMsg['user'], 
                                  font=("Helvetica", "12", "bold"), 
                                  foreground=recvMsg['color']
                                )
-        self.chatMsg.insert(tk.END, msgHeader, ('username'))
+        self.chatMsg.insert(tk.END, msgHeader, (recvMsg['user']))
         isImageUrl = re.match('^https?://(?:[a-z\-]+\.)+[a-z]{2,6}(?:/[^/#?]+)+\.(?:jpg|gif|png)$', recvMsg['msg'])
         if isImageUrl:
             self.appendImage(recvMsg['msg'])
