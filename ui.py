@@ -2,6 +2,7 @@
 
 # python module
 import io, re
+import webbrowser
 from collections import deque
 try:
     #python2
@@ -29,6 +30,12 @@ Author:  Jkm
 Version: 0.1
     
 """    
+def show_hand_cursor(event):
+    event.widget.configure(cursor="hand2")
+
+def show_arrow_cursor(event):
+    event.widget.configure(cursor="")
+
 class TtvChatAppUI(tk.Tk):
     #===================================
     def __init__(self, parent):
@@ -57,6 +64,8 @@ class TtvChatAppUI(tk.Tk):
         self.IMAGE_MAX_HEIGHT = 300
         self.IMAGE_MAX_WIDTH = 300
         
+        self.MAX_LINE_NUMBER = 1024
+        
         # queue of msg from UI -> ircBot
         self.uiSentMsgQueue = Queue()
 
@@ -66,7 +75,9 @@ class TtvChatAppUI(tk.Tk):
         
         
     #===================================
-    # Method 
+    # Method
+
+    
     def loadUrlImage(self, url, maxHeight, maxWidth):
         #load from internet
         image_bytes = urlopen(url).read()
@@ -101,25 +112,38 @@ class TtvChatAppUI(tk.Tk):
     def handleMsg(self, recvMsg):
         # recvMsg = {'user': user, 'channel': channel, 'msg': msg, 'color': color}
         msgHeader = recvMsg['user'] + ':\n'
-        # chatMsg tags
+        # chatMsg tags (username color)
         self.chatMsg.tag_config(recvMsg['user'], 
                                  font=("Helvetica", "12", "bold"), 
                                  foreground=recvMsg['color']
                                )
         self.chatMsg.insert(tk.END, msgHeader, (recvMsg['user']))
+        # check url
         isImageUrl = re.match('^https?://(?:[a-z\-]+\.)+[a-z]{2,6}(?:/[^/#?]+)+\.(?:jpg|gif|png)$', recvMsg['msg'])
         if isImageUrl:
+            self.chatMsg.tag_config(recvMsg['msg'], foreground='blue', underline=1)
+            # cursor enter hyperlink shows 'hand'
+            self.chatMsg.tag_bind(recvMsg['msg'], "<Enter>", show_hand_cursor)
+            # cursor leave hyperlink shows 'normal cursor'
+            self.chatMsg.tag_bind(recvMsg['msg'], "<Leave>", show_arrow_cursor)
+            # browser hyperlink 
+            self.chatMsg.tag_bind(recvMsg['msg'], '<Button-1>', lambda e, arg=recvMsg['msg']: webbrowser.open(arg))
+            self.chatMsg.insert(tk.END, recvMsg['msg']+'\n', (recvMsg['msg']))
             self.appendImage(recvMsg['msg'])
         else:
             self.chatMsg.insert(tk.END, recvMsg['msg'])
         self.chatMsg.insert(tk.END, '\n \n')
+        currentLineNumber = int(self.chatMsg.index('end-1c').split('.')[0])
+        if currentLineNumber > self.MAX_LINE_NUMBER:
+            self.chatMsg.delete('0.0', str(currentLineNumber-self.MAX_LINE_NUMBER)+'.0')
         self.chatMsg.see(tk.END)
 
     def appendImage(self, url):
         loadedImage = self.loadUrlImage(url, self.IMAGE_MAX_HEIGHT, self.IMAGE_MAX_WIDTH)
         self.chatMsg.image_create(tk.END, image=loadedImage)
+        # keep the image reference in deque
         self.imageDeque.append(loadedImage)
-        
+
     def initUI(self):
         #====================================
         # UI
