@@ -90,14 +90,31 @@ class IrcBot(irc.IRCClient):
         # example
         # USERCOLOR boy20330 #FF0000
         # EMOTESET boy20330 [0,3568]
+        # CLEARCHAT (all chat is clear)
+        # CLEARCHAT boy20330 (user boy20330 is timeout/ban, <message delete> at chat)
         if user == 'jtv':
-            (msgConfig, user, config) = msg.split(' ',2)
-            if msgConfig == 'USERCOLOR':
-                self.msgUserColor[user] = config
-            #elif msgConfig == 'EMOTESET':
+            # splitMsg = msgConfig, *user, *config
+            splitMsg = msg.split(' ',2)
+            if splitMsg[0] == 'USERCOLOR':
+                self.msgUserColor[splitMsg[1]] = splitMsg[2]
+            # elif splitMsg[0] == 'EMOTESET':
+                #TODO
+            # elif splitMsg[0] == 'CLEARCHAT':
                 #TODO
         else:
+            # default color, sometimes the jtv doesn't send color data
             color = 'black'
+            # each color only used once, then delete it in dict
+            """
+            sometimes the color data does not send with seq
+            for instance:
+                USERCOLOR boy      #FF0000 ---> add boy's color to dict
+                USERCOLOR nika #FF0000     ---> add nika's color to dict
+                (nika's msg)               <--- get nika's color from dict, then del
+                (boy's msg)                <--- get boy's color from dict, then del
+            so it's necessary to preserve the color data
+            once the data was used, it will be deleted
+            """
             if user in self.msgUserColor:
                 color = self.msgUserColor[user]
                 del self.msgUserColor[user]
