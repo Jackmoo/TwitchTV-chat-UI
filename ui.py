@@ -2,14 +2,15 @@
 
 # python module
 import io, re
+import threading
 import webbrowser
 from collections import deque
 try:
     #python2
-    from Queue import Queue
+    import Queue as Queue
 except ImportError:
     #py3
-    from queue import Queue
+    import queue as Queue
 
 # ext module (for image display, resizing)
 from PIL import Image, ImageTk
@@ -67,17 +68,16 @@ class TtvChatAppUI(tk.Tk):
         self.MAX_LINE_NUMBER = 1024
         
         # queue of msg from UI -> ircBot
-        self.uiSentMsgQueue = Queue()
-
+        self.uiSentMsgQueue = Queue.Queue()
+        self.uiRecvMsgQueue = Queue.Queue()
+        
         # init function of creating UI cpmponent
         self.initUI()
         
         
-        
     #===================================
-    # Method
-
     
+    # Method
     def loadUrlImage(self, url, maxHeight, maxWidth):
         #load from internet
         image_bytes = urlopen(url).read()
@@ -144,6 +144,18 @@ class TtvChatAppUI(tk.Tk):
         # keep the image reference in deque
         self.imageDeque.append(loadedImage)
 
+    # def looping handler function of chatMsg
+    def chatMsgRecvUpdateHandler(self):
+        try:
+            while 1:
+                recvMsg = self.uiRecvMsgQueue.get_nowait()
+                if recvMsg is not None:
+                    self.handleMsg(recvMsg)
+                self.chatMsg.update_idletasks()
+        except Queue.Empty:
+            pass
+        self.chatMsg.after(100, self.chatMsgRecvUpdateHandler)
+        
     def initUI(self):
         #====================================
         # UI
@@ -186,7 +198,10 @@ class TtvChatAppUI(tk.Tk):
         self.sendBtn.pack()    
         self.sendBtn2.pack()
         
-    
+        # trigger chatMsg handler
+        self.chatMsg.after(100, self.chatMsgRecvUpdateHandler)
+        
+
 if __name__ == '__main__':
     app = TtvChatAppUI(None)
     app.title('test app')

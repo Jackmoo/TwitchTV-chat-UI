@@ -41,6 +41,7 @@ reactor.connectTCP(settings['ircServer'], settings['ircPort'], f)
 
 # send bot msg queue to UI
 print 'preparing recv thread...'
+# improve thread safe
 class recvMsgThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
@@ -52,7 +53,7 @@ class recvMsgThread(threading.Thread):
             while 1:
                 # pass received msg from bot to UI
                 botRecvMsg = f.botRecvMsgQueue.get()
-                uiThread.appUI.handleMsg(botRecvMsg)
+                uiThread.appUI.uiRecvMsgQueue.put(botRecvMsg)
                 
 recvMsgThread = recvMsgThread()
 
