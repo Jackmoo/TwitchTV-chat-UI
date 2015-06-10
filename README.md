@@ -11,6 +11,7 @@ This is a Python based Twitch TV chat program, focusing on:
 II. Dependency
 ----------------
 This program was written in Python 2.7, Python 3 capability isn't test yet.
+Only test in windows, should be able to work in Linux distro with GUI or MAC, but PIL lib could be a problem
 
 Required following external Python Modules:
 * Twisted 
@@ -20,7 +21,7 @@ Required following external Python Modules:
 * PIL
 	- image format capability ( .jpg, .png, ...etc) 
 	- image processing (resizing)
-*py2exe (OPTIONAL, ONLY FOR WINDOWS)
+* py2exe (OPTIONAL, ONLY FOR WINDOWS)
 	- build stand alone .exe file (remember to check if you are authorized to distribute the related libraries).
 
 Built in modules:
