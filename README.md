@@ -18,7 +18,7 @@ Required following external Python Modules:
 * Zope
 	- required by Twisted
 * PIL
-	- image ( .jpg, .png, ...etc) cability 
+	- image format capability ( .jpg, .png, ...etc) 
 	- image processing (resizing)
 *py2exe (OPTIONAL, ONLY FOR WINDOWS)
 	- build stand alone .exe file (remember to check if you are authorized to distribute the related libraries).
