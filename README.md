@@ -97,4 +97,6 @@ VI. TODO
 * sending msg function
 * other bot-liked reaction (auto-ban, auto-kick, ...)
 * configure setting in UI?
-*
+* chat msg url examination. When encountering a url in msg, add hyperlink to the url string with tkinter(tag?).
+* press 'enter' to send msg?
+* porting to web-form app?
